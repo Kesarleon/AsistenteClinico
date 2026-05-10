@@ -1,0 +1,557 @@
+{
+  "name": "Asistente Clínico — Agente Principal",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "booking-agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook-trigger",
+      "name": "WhatsApp Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 340],
+      "webhookId": "booking-agent",
+      "notes": "Recibe eventos whatsapp.client_message de Kaja Uno.\nRegistrar en Kaja con: POST /api/v1/webhooks/ {event: whatsapp.client_message, url: N8N_WEBHOOK_URL/webhook/booking-agent}"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extraer campos del payload de Kaja whatsapp.client_message\nconst body = $input.first().json.body;\n\nconst tenantId = body.tenant_id || 'unknown';\nconst fromPhone = body.message?.from || body.sender?.phone || '';\nconst messageText = body.message?.text?.body || body.message?.text || '';\nconst messageId = body.message?.id || `msg_${Date.now()}`;\nconst timestamp = new Date().toISOString();\n\nif (!fromPhone || !messageText) {\n  throw new Error(`Payload incompleto: from=${fromPhone}, text=${messageText}`);\n}\n\nreturn [{\n  json: {\n    tenantId,\n    fromPhone,\n    messageText,\n    messageId,\n    timestamp,\n    sessionKey: `chat_session:${tenantId}:${fromPhone}`,\n    contextKey: `booking_context:${tenantId}`\n  }\n}];"
+      },
+      "id": "node-extract-fields",
+      "name": "Extraer campos del webhook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 340]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $json.sessionKey }}",
+        "keyType": "automatic",
+        "value": "={{ $json.timestamp }}",
+        "expire": true,
+        "ttl": 43200,
+        "options": {}
+      },
+      "id": "node-redis-session",
+      "name": "Redis — Renovar sesión TTL 12h",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [700, 240],
+      "credentials": {
+        "redis": {
+          "id": "redis-local",
+          "name": "Redis Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ $('Extraer campos del webhook').item.json.contextKey }}",
+        "keyType": "automatic",
+        "options": {}
+      },
+      "id": "node-redis-get-context",
+      "name": "Redis — GET contexto negocio",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [700, 440],
+      "credentials": {
+        "redis": {
+          "id": "redis-local",
+          "name": "Redis Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "check-context-miss",
+              "leftValue": "={{ $json.value }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "empty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-context-miss",
+      "name": "¿Contexto en caché?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 440]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://{{ $env['KAJA_TENANT_SLUG'] }}.kaja.uno/api/v1/branches/{{ $env['KAJA_BRANCH_ID'] }}/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env['KAJA_API_TOKEN'] }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-get-branch",
+      "name": "Kaja — GET Branch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 340],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kaja-bearer-token",
+          "name": "Kaja API — Bearer Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://{{ $env['KAJA_TENANT_SLUG'] }}.kaja.uno/api/v1/branches/{{ $env['KAJA_BRANCH_ID'] }}/staff/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env['KAJA_API_TOKEN'] }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-get-staff",
+      "name": "Kaja — GET Staff",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 480],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kaja-bearer-token",
+          "name": "Kaja API — Bearer Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combina datos de Branch y Staff, formatea el contexto de negocio\nconst branch = $('Kaja — GET Branch').item.json;\nconst staffList = $('Kaja — GET Staff').item.json?.results || [];\n\nconst staffSummary = staffList\n  .map(s => `- ${s.first_name} ${s.last_name} (${s.specialty || 'Audiología'})`)\n  .join('\\n');\n\nconst context = {\n  businessName: branch.name || $env['KAJA_BUSINESS_NAME'],\n  address: branch.address || $env['KAJA_BUSINESS_ADDRESS'],\n  branchId: branch.id || $env['KAJA_BRANCH_ID'],\n  staff: staffList.map(s => ({\n    id: s.id,\n    name: `${s.first_name} ${s.last_name}`,\n    specialty: s.specialty || 'Audiología'\n  })),\n  contextSummary: `Negocio: ${branch.name}\\nDirección: ${branch.address}\\nEspecialistas disponibles:\\n${staffSummary}`\n};\n\nreturn [{ json: { ...context, contextKey: $('Extraer campos del webhook').item.json.contextKey } }];"
+      },
+      "id": "node-format-context",
+      "name": "Formatear contexto de negocio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 410]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $json.contextKey }}",
+        "keyType": "automatic",
+        "value": "={{ JSON.stringify($json) }}",
+        "expire": true,
+        "ttl": 86400,
+        "options": {}
+      },
+      "id": "node-redis-set-context",
+      "name": "Redis — SET contexto (TTL 24h)",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [1500, 410],
+      "credentials": {
+        "redis": {
+          "id": "redis-local",
+          "name": "Redis Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepara el contexto (desde caché o recién cargado) para el agente\nlet context;\ntry {\n  const cached = $('Redis — GET contexto negocio').item.json?.value;\n  context = cached ? JSON.parse(cached) : $('Redis — SET contexto (TTL 24h)').item.json;\n} catch {\n  context = { contextSummary: '' };\n}\n\nconst extracted = $('Extraer campos del webhook').item.json;\n\nreturn [{\n  json: {\n    ...extracted,\n    businessContext: context.contextSummary || '',\n    businessName: context.businessName || $env['KAJA_BUSINESS_NAME'],\n    branchId: context.branchId || $env['KAJA_BRANCH_ID']\n  }\n}];"
+      },
+      "id": "node-merge-context",
+      "name": "Merge: campos + contexto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1700, 340]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "={{ $json.messageText }}",
+        "systemMessage": "=Eres el asistente clínico virtual de {{ $json.businessName || 'la Dra.' }}, especialista en audiología y aparatos auditivos, atendiendo pacientes en todo el país vía WhatsApp.\n\nCONTEXTO DEL NEGOCIO:\n{{ $json.businessContext }}\n\nANTES DE RESPONDER, clasifica cada mensaje en UNA de estas categorías e incluye el marcador exacto al FINAL de tu respuesta:\n\n[CATEGORÍA A — DUDA TÉCNICA]\nEjemplos: cambiar pila o batería, limpiar filtro, ajustar volumen, conectar Bluetooth, entender señales sonoras (pitidos), guardar el aparato, cargadores.\nAcción: usa la herramienta `buscar_manual` para encontrar la respuesta exacta en los manuales técnicos. Responde paso a paso, en lenguaje sencillo.\nMarcador al final: [CAT-A]\n\n[CATEGORÍA B — MANTENIMIENTO]\nEjemplos: aparato dañado físicamente, humedad, caída, reparación, calibración, solicitud de repuesto, garantía.\nAcción: informa al paciente que el equipo de soporte lo contactará pronto. Incluye el marcador [ESCALAR-SOPORTE] al final de tu respuesta.\nMarcador al final: [CAT-B][ESCALAR-SOPORTE]\n\n[CATEGORÍA C — URGENCIA MÉDICA O AUDIOLÓGICA]\nEjemplos: dolor de oído con el aparato puesto, pérdida auditiva repentina, infección, mareos, tinnitus severo súbito, aparato que causa daño físico.\nAcción: indica al paciente que la Dra. lo contactará a la brevedad. USA la herramienta alertar_doctor. NO intentes resolver — escala siempre.\nMarcador al final: [CAT-C][ESCALAR-DOCTOR]\n\n[AGENDA DE CITAS]\nSi el paciente quiere agendar, reagendar o cancelar:\nUsa las herramientas del MCP de agenda en este flujo:\nservicio → preferencia de staff → fecha/hora disponible → datos del paciente → confirmación → crear cita.\nMarcador al final: [CAT-AGENDA]\n\n[FUERA DE SCOPE]\nSi la solicitud no cae en ninguna categoría anterior (expedientes, diagnósticos, recetas, fotos médicas, temas ajenos al aparato auditivo):\nResponde con amabilidad que estás especializado en soporte de aparatos auditivos y agendamiento, y ofrece redirigir.\nMarcador al final: [CAT-OOS]\n\nREGLAS GENERALES:\n- Responde SIEMPRE en español, con tono cálido y profesional.\n- Sé breve: estás en WhatsApp, no en un formulario. Máximo 3-4 líneas por respuesta.\n- Nunca inventes disponibilidad — consulta siempre get_available_slots.\n- Si no sabes algo, di que se lo harás llegar a la Dra.\n- SIEMPRE incluye el marcador de categoría al final de tu respuesta.",
+        "options": {
+          "maxIterations": 10
+        }
+      },
+      "id": "node-ai-agent",
+      "name": "AI Agent (Gemini 2.5 Flash)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1900, 340]
+    },
+    {
+      "parameters": {
+        "model": "models/gemini-2.5-flash",
+        "options": {
+          "temperature": 0.3,
+          "maxOutputTokens": 1024
+        }
+      },
+      "id": "node-gemini-model",
+      "name": "Gemini 2.5 Flash",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [1800, 540],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "google-gemini-api",
+          "name": "Google Gemini API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Extraer campos del webhook').item.json.sessionKey }}",
+        "sessionTTL": 43200
+      },
+      "id": "node-redis-memory",
+      "name": "Redis Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.4,
+      "position": [1900, 540],
+      "credentials": {
+        "redis": {
+          "id": "redis-local",
+          "name": "Redis Local"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "buscar_manual",
+        "description": "Busca información en los manuales técnicos de aparatos auditivos (Phonak, Oticon, etc). Úsala para responder dudas sobre: cambio de batería/pila, carga, limpieza, filtros de cera, señales sonoras (pitidos), Bluetooth, ajuste de volumen, almacenamiento y solución de problemas técnicos.",
+        "toolType": "vectorStoreTool",
+        "vectorStoreType": "qdrant",
+        "qdrantCollection": "={{ $env['QDRANT_COLLECTION'] || 'hearing_aid_manuals' }}",
+        "qdrantUrl": "=http://qdrant:6333",
+        "topK": 4,
+        "returnMetadata": true
+      },
+      "id": "node-qdrant-tool",
+      "name": "buscar_manual (Qdrant)",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [2100, 540],
+      "credentials": {
+        "qdrantApi": {
+          "id": "qdrant-local",
+          "name": "Qdrant Local"
+        }
+      },
+      "notes": "TAREA 3 — Configuración de la tool buscar_manual:\n1. Crear credencial 'Qdrant Local' en n8n:\n   Settings → Credentials → New → Qdrant API\n   - URL: http://qdrant:6333\n   - API Key: (dejar vacío para instalación local)\n2. Este nodo se conecta al AI Agent como 'ai_tool'\n3. Colección: hearing_aid_manuals (del .env QDRANT_COLLECTION)"
+    },
+    {
+      "parameters": {
+        "name": "alertar_doctor",
+        "description": "Alerta URGENTE a la Dra. sobre una emergencia médica o audiológica de un paciente. Úsala cuando el paciente reporte: dolor de oído con el aparato puesto, pérdida auditiva repentina, infección, mareos, tinnitus severo o cualquier síntoma que requiera atención médica inmediata.",
+        "jsCode": "// Esta tool registra la urgencia; la escalación real se hace en el nodo Switch posterior\nconst phone = $execution.customData?.fromPhone || 'desconocido';\nconst msg = $execution.customData?.messageText || 'mensaje no disponible';\nconsole.log(`[URGENCIA MÉDICA] Paciente: ${phone}, Mensaje: ${msg}`);\nreturn { escalated: true, type: 'DOCTOR', phone, msg };"
+      },
+      "id": "node-alert-doctor-tool",
+      "name": "alertar_doctor (tool)",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1,
+      "position": [2200, 540]
+    },
+    {
+      "parameters": {
+        "url": "=https://{{ $env['KAJA_TENANT_SLUG'] }}.kaja.uno/mcp/booking/sse",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBearerAuth"
+      },
+      "id": "node-mcp-kaja",
+      "name": "MCP Kaja Booking",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [2300, 540],
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "kaja-bearer-auth",
+          "name": "Kaja API — Bearer Auth"
+        }
+      },
+      "notes": "MCP tools disponibles:\nlist_staff, search_products, get_available_slots,\nsearch_customers, create_customer, create_appointment"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "[ESCALAR-SOPORTE]",
+                    "operator": { "type": "string", "operation": "contains" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "soporte"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output }}",
+                    "rightValue": "[ESCALAR-DOCTOR]",
+                    "operator": { "type": "string", "operation": "contains" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "doctor"
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "none" }
+      },
+      "id": "node-switch-escalation",
+      "name": "Switch — ¿Escalar?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2400, 340],
+      "notes": "Evalúa marcadores en el output del agente:\n[ESCALAR-SOPORTE] → notifica número de soporte (Cat B)\n[ESCALAR-DOCTOR]  → alerta urgente a la Dra. (Cat C)\nSin marcador → solo responde al paciente"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Limpia el output del agente: elimina los marcadores internos antes de enviarlo al paciente\nconst raw = $('AI Agent (Gemini 2.5 Flash)').item.json.output || '';\nconst clean = raw\n  .replace(/\\[CAT-[A-Z]+\\]/g, '')\n  .replace(/\\[ESCALAR-[A-Z]+\\]/g, '')\n  .trim();\n\nconst extracted = $('Extraer campos del webhook').item.json;\n\nreturn [{\n  json: {\n    agentOutput: raw,\n    cleanResponse: clean,\n    fromPhone: extracted.fromPhone,\n    tenantId: extracted.tenantId,\n    timestamp: extracted.timestamp\n  }\n}];"
+      },
+      "id": "node-clean-output",
+      "name": "Limpiar output del agente",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2600, 340]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $env['KAJA_TENANT_SLUG'] }}.kaja.uno/api/v1/messages/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env['KAJA_API_TOKEN'] }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "to_phone", "value": "={{ $json.fromPhone }}" },
+            { "name": "message", "value": "={{ $json.cleanResponse }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-send-patient",
+      "name": "Kaja — Responder al paciente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2800, 340],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kaja-bearer-token",
+          "name": "Kaja API — Bearer Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $env['KAJA_TENANT_SLUG'] }}.kaja.uno/api/v1/messages/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env['KAJA_API_TOKEN'] }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "to_phone", "value": "={{ $env['SUPPORT_PHONE'] }}" },
+            {
+              "name": "message",
+              "value": "=🔧 SOPORTE REQUERIDO\nPaciente: {{ $('Extraer campos del webhook').item.json.fromPhone }}\nMensaje: {{ $('Extraer campos del webhook').item.json.messageText }}\nFecha: {{ $('Extraer campos del webhook').item.json.timestamp }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-notify-support",
+      "name": "Kaja — Notificar Soporte (Cat B)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2600, 180],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kaja-bearer-token",
+          "name": "Kaja API — Bearer Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $env['KAJA_TENANT_SLUG'] }}.kaja.uno/api/v1/messages/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env['KAJA_API_TOKEN'] }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "to_phone", "value": "={{ $env['DOCTOR_PHONE'] }}" },
+            {
+              "name": "message",
+              "value": "=🚨 URGENCIA MÉDICA\nPaciente: {{ $('Extraer campos del webhook').item.json.fromPhone }}\nMensaje: {{ $('Extraer campos del webhook').item.json.messageText }}\nFecha: {{ $('Extraer campos del webhook').item.json.timestamp }}\nContactar de inmediato."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-alert-doctor",
+      "name": "Kaja — Alerta URGENTE Dra. (Cat C)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2600, 500],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kaja-bearer-token",
+          "name": "Kaja API — Bearer Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"status\": \"ok\", \"processed\": true }",
+        "options": {}
+      },
+      "id": "node-respond-webhook",
+      "name": "Responder 200 OK al webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [3000, 340]
+    }
+  ],
+  "connections": {
+    "WhatsApp Webhook": {
+      "main": [[{ "node": "Extraer campos del webhook", "type": "main", "index": 0 }]]
+    },
+    "Extraer campos del webhook": {
+      "main": [
+        [
+          { "node": "Redis — Renovar sesión TTL 12h", "type": "main", "index": 0 },
+          { "node": "Redis — GET contexto negocio", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Redis — GET contexto negocio": {
+      "main": [[{ "node": "¿Contexto en caché?", "type": "main", "index": 0 }]]
+    },
+    "¿Contexto en caché?": {
+      "main": [
+        [
+          { "node": "Kaja — GET Branch", "type": "main", "index": 0 },
+          { "node": "Kaja — GET Staff", "type": "main", "index": 0 }
+        ],
+        [{ "node": "Merge: campos + contexto", "type": "main", "index": 0 }]
+      ]
+    },
+    "Kaja — GET Branch": {
+      "main": [[{ "node": "Formatear contexto de negocio", "type": "main", "index": 0 }]]
+    },
+    "Kaja — GET Staff": {
+      "main": [[{ "node": "Formatear contexto de negocio", "type": "main", "index": 0 }]]
+    },
+    "Formatear contexto de negocio": {
+      "main": [[{ "node": "Redis — SET contexto (TTL 24h)", "type": "main", "index": 0 }]]
+    },
+    "Redis — SET contexto (TTL 24h)": {
+      "main": [[{ "node": "Merge: campos + contexto", "type": "main", "index": 0 }]]
+    },
+    "Redis — Renovar sesión TTL 12h": {
+      "main": []
+    },
+    "Merge: campos + contexto": {
+      "main": [[{ "node": "AI Agent (Gemini 2.5 Flash)", "type": "main", "index": 0 }]]
+    },
+    "AI Agent (Gemini 2.5 Flash)": {
+      "main": [[{ "node": "Switch — ¿Escalar?", "type": "main", "index": 0 }]]
+    },
+    "Gemini 2.5 Flash": {
+      "ai_languageModel": [[{ "node": "AI Agent (Gemini 2.5 Flash)", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [[{ "node": "AI Agent (Gemini 2.5 Flash)", "type": "ai_memory", "index": 0 }]]
+    },
+    "buscar_manual (Qdrant)": {
+      "ai_tool": [[{ "node": "AI Agent (Gemini 2.5 Flash)", "type": "ai_tool", "index": 0 }]]
+    },
+    "alertar_doctor (tool)": {
+      "ai_tool": [[{ "node": "AI Agent (Gemini 2.5 Flash)", "type": "ai_tool", "index": 1 }]]
+    },
+    "MCP Kaja Booking": {
+      "ai_tool": [[{ "node": "AI Agent (Gemini 2.5 Flash)", "type": "ai_tool", "index": 2 }]]
+    },
+    "Switch — ¿Escalar?": {
+      "main": [
+        [{ "node": "Kaja — Notificar Soporte (Cat B)", "type": "main", "index": 0 }],
+        [{ "node": "Kaja — Alerta URGENTE Dra. (Cat C)", "type": "main", "index": 0 }]
+      ],
+      "none": [[{ "node": "Limpiar output del agente", "type": "main", "index": 0 }]]
+    },
+    "Kaja — Notificar Soporte (Cat B)": {
+      "main": [[{ "node": "Limpiar output del agente", "type": "main", "index": 0 }]]
+    },
+    "Kaja — Alerta URGENTE Dra. (Cat C)": {
+      "main": [[{ "node": "Limpiar output del agente", "type": "main", "index": 0 }]]
+    },
+    "Limpiar output del agente": {
+      "main": [[{ "node": "Kaja — Responder al paciente", "type": "main", "index": 0 }]]
+    },
+    "Kaja — Responder al paciente": {
+      "main": [[{ "node": "Responder 200 OK al webhook", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": ["asistente-clinico", "pilar1", "pilar2", "pilar3"],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-10T00:00:00.000Z",
+  "versionId": "1.0.0"
+}

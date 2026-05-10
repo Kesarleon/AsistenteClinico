@@ -1,0 +1,17 @@
+# Variables de entorno con secrets
+.env
+
+# Datos de Docker volumes (si se montan localmente)
+data/
+
+# Node
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db

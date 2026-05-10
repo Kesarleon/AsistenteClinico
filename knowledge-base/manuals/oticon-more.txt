@@ -1,0 +1,227 @@
+MANUAL DE USUARIO — OTICON MORE
+================================
+Modelo: Oticon More 1 / More 2 / More 3 (miniRITE R)
+Tipo: Audífono retroauricular mini recargable (miniRITE)
+Fabricante: Oticon A/S, Dinamarca
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 1 — DESCRIPCIÓN DEL PRODUCTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+El Oticon More miniRITE R es un audífono recargable de última generación.
+Viene en versión recargable (sufijo R) y versión con pila desechable 312.
+Este manual cubre la versión RECARGABLE (miniRITE R).
+
+Contenido del paquete:
+- Audífono Oticon More (izquierdo y/o derecho)
+- Cargador de escritorio Oticon ChargerCase
+- Cable de carga USB
+- Domo abierto, domo cerrado (varios tamaños)
+- Limpiador con cepillo y multiherramienta
+- Guía de inicio rápido
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 2 — CARGA DEL OTICON MORE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2.1 Cómo cargar el audífono
+El Oticon More R es recargable con batería de iones de litio integrada.
+
+Pasos para cargar:
+1. Abre la tapa del Oticon ChargerCase.
+2. Coloca el audífono en el compartimiento (el imán lo guía a la posición correcta).
+   Izquierdo = ranura izquierda (marcada con punto rojo), Derecho = ranura derecha.
+3. La luz LED parpadea en naranja mientras carga.
+4. La luz LED se vuelve verde fija cuando la carga está completa.
+5. Para cargar el estuche, conecta el cable USB al puerto en la base del estuche.
+
+Indicadores LED del cargador:
+- Naranja parpadeante: cargando
+- Verde fija: carga completa
+- Rojo: batería del estuche baja (menos del 10%)
+- Apagado: estuche sin energía
+
+Tiempo de carga desde 0%: aproximadamente 3.5 horas.
+Autonomía del audífono: hasta 20 horas de uso (con streaming Bluetooth).
+El estuche proporciona hasta 3 cargas adicionales sin necesidad de enchufarlo.
+
+2.2 Nivel de batería
+- Abre la app Oticon ON en tu smartphone.
+- La pantalla principal muestra el nivel de batería en tiempo real.
+- Señales de batería baja: el audífono emite 3 pitidos cortos cada 30 minutos.
+- Con menos del 5% de batería: 4 pitidos cortos y apagado automático en 5 minutos.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 3 — ENCENDIDO Y APAGADO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Encender:
+- Retira el audífono del estuche de carga. Se enciende automáticamente.
+- Escucharás 2 tonos ascendentes que confirman el encendido.
+- El audífono tarda aproximadamente 15 segundos en iniciar completamente.
+
+Apagar:
+- Coloca el audífono de regreso en el estuche y cierra la tapa.
+- El audífono se apaga automáticamente al detectar el contacto de carga.
+- También puedes mantener presionado el botón multifunción 5 segundos.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 4 — AJUSTE DE VOLUMEN Y PROGRAMAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4.1 Control de volumen manual
+El Oticon More tiene un botón multifunción en el cuerpo del audífono:
+
+- Presión corta (1 vez): subir volumen un paso
+- Presión corta (2 veces): bajar volumen un paso
+- Presión larga (3 segundos): cambiar de programa de escucha
+- Si tienes audífonos biauriculares (par), el control de un audífono
+  sincroniza automáticamente el volumen del otro.
+
+Rango de volumen: ±3 dB desde la programación base de la audióloga.
+Si necesitas más rango, solicita un ajuste a tu audióloga.
+
+4.2 Programas de escucha disponibles (configurados por la audióloga)
+- Programa 1: General / Ambiente (uso cotidiano)
+- Programa 2: Ruido (restaurantes, reuniones)
+- Programa 3: Música
+- Programa 4: TV Connect / Streaming
+Los programas disponibles dependen de cómo programó tu audióloga el aparato.
+
+4.3 Control desde la app Oticon ON
+- Descarga "Oticon ON" desde App Store o Google Play.
+- Permite ajustar volumen, graves/agudos, cambiar programa, y ver batería.
+- Accede a "SoundBooster" para amplificar en entornos difíciles.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 5 — CONECTIVIDAD BLUETOOTH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5.1 Tecnología Bluetooth del Oticon More
+El Oticon More usa Bluetooth Low Energy (BLE) 2.4 GHz.
+Compatible con iPhone (iOS 14+) y Android (8.0+ con Bluetooth 4.2+).
+
+5.2 Emparejar con iPhone (Made for iPhone - MFi)
+1. Ve a Ajustes → Accesibilidad → Audífonos.
+2. Abre el estuche con los audífonos dentro, espera 3 segundos y sácalos.
+3. Los audífonos aparecerán en la lista de "Dispositivos MFi".
+4. Toca el nombre y selecciona "Conectar".
+5. Escucharás 2 tonos cortos que confirman la conexión.
+
+5.3 Emparejar con Android (Oticon ON)
+1. Descarga la app Oticon ON.
+2. Abre la app → toca "Conectar audífonos".
+3. Abre el estuche y saca los audífonos.
+4. Sigue las instrucciones en pantalla para completar el emparejamiento.
+
+5.4 Streaming de audio
+Para escuchar música, llamadas o TV directamente:
+- iPhone/iPad: el streaming ocurre automáticamente cuando el dispositivo
+  emite audio (llamadas, música, navegación GPS).
+- Android: activa el streaming desde la app Oticon ON.
+- TV: usa el accesorio Oticon TV Adapter 3.0 (se vende por separado).
+
+5.5 Solución de problemas de conectividad
+- Sin conexión: olvida el dispositivo en Bluetooth del teléfono y vuelve a emparejar.
+- Cortes de audio: aléjate de interferencias Wi-Fi 2.4 GHz y microondas.
+- App no detecta audífonos: verifica que los permisos de ubicación estén activos
+  (Android requiere ubicación para escaneo Bluetooth).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 6 — SEÑALES SONORAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Señales de audio del Oticon More:
+
+| Señal | Significado |
+|-------|-------------|
+| 2 tonos ascendentes | Audífono encendido y listo |
+| 2 tonos descendentes | Audífono apagado |
+| 1 tono corto (agudo) | Confirmación de acción (subida de volumen) |
+| 1 tono corto (grave) | Confirmación de acción (bajada de volumen) |
+| 2 tonos medios | Cambio de programa |
+| 3 pitidos cortos | Batería baja (30%) |
+| 4 pitidos cortos | Batería crítica (5%) — apagado próximo |
+| Tono largo | Error — contactar soporte |
+| Melodía corta ascendente | Conexión Bluetooth establecida |
+| Melodía corta descendente | Bluetooth desconectado |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 7 — LIMPIEZA Y MANTENIMIENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+7.1 Limpieza diaria
+Frecuencia recomendada: cada noche antes de cargar.
+
+Pasos:
+1. Retira el domo del receptor.
+2. Usa el cepillo de limpieza para barrer el orificio del receptor
+   con movimientos circulares suaves.
+3. Limpia el domo con agua tibia. Sécalo con un paño o déjalo secar al aire.
+   NUNCA uses alcohol ni solventes.
+4. Pasa un paño seco suave por el cuerpo del audífono.
+5. Inspecciona el filtro de cera (cerumen guard) — si está obstruido, reemplázalo.
+
+7.2 Reemplazo del filtro de cera
+El filtro protege el receptor del cerumen. Reemplazar cada 1–2 meses
+o cuando el sonido se escuche amortiguado.
+
+Pasos:
+1. Identifica el filtro: pequeño disco plateado en la punta del receptor.
+2. Inserta el extremo vacío de la multiherramienta en el filtro usado y jala.
+3. Da vuelta la herramienta y usa el extremo con filtro nuevo para insertarlo.
+4. El filtro debe quedar nivelado con la superficie del receptor.
+Filtros de repuesto: Oticon Hear Gear Wax Guard — disponibles en la clínica.
+
+7.3 Protección contra humedad
+- Clasificación IP: IP58 (resistente a salpicaduras y sudor, no a inmersión).
+- Si el audífono se moja: sécalo con un paño suave. NO uses secadora de pelo.
+- Guárdalo en el estuche abierto durante 1 hora para secar completamente.
+- Para usuarios activos: considera una caja desecante eléctrica (Dry-Brik).
+
+7.4 Almacenamiento
+- Usa siempre el estuche de carga para guardar el audífono.
+- Evita temperatura extrema: no dejar en el coche en verano ni en el congelador.
+- Rango de temperatura segura: -20°C a +55°C.
+- Mantén alejado de imanes fuertes (altavoces, imanes industriales).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 8 — SOLUCIÓN DE PROBLEMAS COMUNES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Problema: Audífono no enciende
+→ Carga el audífono al menos 30 minutos en el estuche.
+→ Verifica que los pines del estuche estén limpios.
+→ Si sigue sin encender, contacta soporte técnico.
+
+Problema: Sonido tapado o muy bajo
+→ Limpia o reemplaza el filtro de cera (sección 7.2).
+→ Verifica que el domo no esté obstruido.
+→ Sube el volumen desde la app Oticon ON.
+
+Problema: Silbido o feedback constante
+→ Recoloca el domo en el canal auditivo correctamente.
+→ El domo puede ser demasiado pequeño — pide un tamaño mayor a la Dra.
+→ Si el oído tiene exceso de cerumen, busca limpieza médica.
+
+Problema: Se escucha estática o ruido extraño
+→ Revisa que no haya interferencias de otros dispositivos electrónicos.
+→ Reinicia el audífono: colócalo en el estuche y sácalo a los 5 segundos.
+
+Problema: El Bluetooth se desconecta frecuentemente
+→ Reinicia el Bluetooth del teléfono.
+→ Aleja el teléfono de fuentes de interferencia Wi-Fi.
+→ Desempareja y vuelve a emparejar el dispositivo.
+
+Problema: La app Oticon ON no responde
+→ Cierra y vuelve a abrir la app.
+→ Desinstala y vuelve a instalar la app.
+→ Verifica que el teléfono tenga los permisos de ubicación y Bluetooth activos.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 9 — GARANTÍA Y SOPORTE TÉCNICO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Garantía: 2 años por defectos de fabricación.
+- La garantía incluye 1 reparación sin costo por pérdida accidental.
+- Para servicio técnico o garantía, contacta a tu clínica de audiología.
+- NO intentes abrir o reparar el audífono por tu cuenta — anula la garantía.

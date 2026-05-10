@@ -1,0 +1,17 @@
+{
+  "name": "clinico-ingest",
+  "version": "1.0.0",
+  "description": "Script de ingestión de manuales en Qdrant para el Asistente Clínico",
+  "main": "ingest.js",
+  "scripts": {
+    "ingest": "node ingest.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "dotenv": "^16.4.5",
+    "pdf-parse": "^1.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,188 @@
+MANUAL DE USUARIO — PHONAK AUDEO PARADISE
+=========================================
+Modelo: Phonak Audeo Paradise P90-R / P70-R / P50-R / P30-R
+Tipo: Audífono retroauricular recargable (RIC)
+Fabricante: Phonak AG, Suiza
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 1 — PRIMEROS PASOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1.1 Contenido del paquete
+- 1 audífono Phonak Audeo Paradise (izquierdo y/o derecho)
+- 1 estuche de carga Phonak Charger Case Combi
+- Cable USB-C para carga del estuche
+- Domo estándar y domo de potencia (varios tamaños)
+- Limpiador de cera (multiherramienta)
+- Guía rápida de inicio
+
+1.2 Carga inicial
+Antes de usar el audífono por primera vez, cárgalo completamente durante
+al menos 3 horas usando el estuche de carga incluido.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 2 — CARGA DEL AUDÍFONO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2.1 Cómo cargar el audífono Phonak Audeo Paradise
+El Audeo Paradise es un modelo RECARGABLE. No usa pilas desechables.
+
+Pasos para cargar:
+1. Abre la tapa del estuche de carga Phonak Charger Case Combi.
+2. Coloca el audífono en la ranura correspondiente (L = izquierdo, R = derecho).
+   Asegúrate de que el conector de carga quede alineado con los pines del estuche.
+3. Una luz LED verde fija indica que el audífono está cargando.
+4. Cierra la tapa del estuche.
+5. Para cargar el estuche, conecta el cable USB-C al puerto en la parte trasera
+   del estuche y el otro extremo a un cargador USB estándar o computadora.
+
+Estado de la luz LED del estuche:
+- Verde fija: audífono cargando / completamente cargado
+- Verde parpadeante: carga en progreso
+- Roja: batería del estuche baja; conectar a corriente
+- Sin luz: estuche descargado
+
+Tiempo de carga completa: aproximadamente 3 horas.
+Autonomía: hasta 24 horas de uso continuo con Bluetooth activo.
+
+2.2 Verificar nivel de batería
+- Abre la app myPhonak en tu smartphone.
+- El nivel de batería se muestra en la pantalla principal.
+- El audífono emite una señal cuando la batería está baja (3 pitidos cortos seguidos).
+
+NOTA IMPORTANTE: El Phonak Audeo Paradise NO usa pilas de tipo 10, 13, 312 ni 675.
+Es completamente recargable. Si buscas cómo "cambiar la pila", la respuesta es
+que debes cargarlo en el estuche, no reemplazar ninguna pila.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 3 — COLOCACIÓN Y EXTRACCIÓN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+3.1 Cómo ponerse el audífono
+1. Sujeta el audífono con el domo (punta de silicona) apuntando hacia abajo.
+2. Introduce suavemente el domo en el canal auditivo.
+3. Pasa el tubo delgado (receiver wire) por encima de la oreja.
+4. El cuerpo del audífono queda detrás de la oreja.
+5. Si el audífono se siente inestable, prueba con un domo de tamaño diferente
+   o consulta con tu audióloga.
+
+3.2 Cómo retirar el audífono
+1. Toma el cuerpo del audífono con los dedos.
+2. Jala suavemente hacia arriba y atrás hasta que el domo salga del canal auditivo.
+3. No jales del tubo delgado (receiver wire) para no dañarlo.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 4 — SEÑALES SONORAS (PITIDOS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Significado de las señales de audio del Phonak Audeo Paradise:
+
+| Señal | Significado |
+|-------|-------------|
+| 1 pitido ascendente | Audífono encendido / inicio de sesión |
+| 1 pitido descendente | Audífono apagado |
+| 2 pitidos cortos | Cambio de programa de escucha |
+| 3 pitidos cortos | Batería baja — cargar pronto |
+| 4 pitidos cortos | Batería críticamente baja — apagado inminente |
+| Pitido largo + 2 cortos | Emparejamiento Bluetooth iniciado |
+| Melodía ascendente | Conexión Bluetooth exitosa |
+| Melodía descendente | Desconexión Bluetooth |
+| Pitido repetitivo cada 30s | Audífono fuera del estuche y sin batería suficiente |
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 5 — CONEXIÓN BLUETOOTH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+5.1 Primera conexión con un smartphone (iOS o Android)
+1. Abre el estuche de carga con los audífonos dentro.
+2. Espera 3 segundos y retira los audífonos.
+3. En tu smartphone, ve a Ajustes → Bluetooth y actívalo.
+4. El Audeo Paradise aparecerá en la lista como "Audeo Paradise" o similar.
+5. Toca el nombre para emparejar.
+6. Si se te pide un PIN, ingresa 0000.
+7. Una melodía ascendente confirma la conexión.
+
+5.2 Conexión con la app myPhonak
+1. Descarga la app "myPhonak" desde App Store o Google Play.
+2. Abre la app y sigue las instrucciones de configuración.
+3. La app permite ajustar volumen, cambiar programas, ver batería
+   y acceder al asistente de solución de problemas.
+
+5.3 Conectar con múltiples dispositivos
+El Audeo Paradise puede recordar hasta 8 dispositivos emparejados,
+pero solo se conecta activamente a 2 al mismo tiempo (multiconexión).
+
+5.4 Solución de problemas Bluetooth
+- Si no aparece en la lista: apaga y enciende el Bluetooth del teléfono.
+- Si la conexión falla: olvida el dispositivo en el teléfono y vuelve a emparejar.
+- Si hay cortes de audio: aleja fuentes de interferencia (microondas, Wi-Fi 2.4GHz).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 6 — LIMPIEZA Y MANTENIMIENTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+6.1 Limpieza diaria (recomendada)
+Materiales: paño suave seco, multiherramienta Phonak incluida.
+
+Pasos:
+1. Retira el domo del receptor (el pequeño conector de silicona).
+2. Usa el cepillo de la multiherramienta para limpiar el orificio del receptor.
+3. Limpia el domo con agua tibia y jabón suave; sécalo completamente.
+4. Pasa el paño seco por el cuerpo del audífono.
+5. NUNCA sumerjas el audífono en agua ni lo pongas bajo el grifo.
+6. NUNCA uses alcohol, solventes ni productos químicos agresivos.
+
+6.2 Limpieza del filtro de cera (cerumen guard)
+El filtro de cera evita que el cerumen tape el receptor.
+Se recomienda reemplazarlo cada 2–3 meses o cuando el sonido se escuche tapado.
+
+Pasos para cambiar el filtro:
+1. Localiza el filtro en la punta del receptor (pequeño disco blanco o gris).
+2. Usa el lado vacío de la multiherramienta para extraer el filtro usado.
+3. Inserta el filtro nuevo con el otro lado de la multiherramienta.
+4. El filtro debe quedar enrasado; no lo empujes de más.
+5. Los filtros de repuesto (Phonak Cerustop) se compran en la clínica.
+
+6.3 Protección contra humedad
+- El Audeo Paradise tiene clasificación IP68 (resistente al agua y al polvo).
+- Puede tolerar sudor, lluvia ligera y salpicaduras, pero NO sumersión prolongada.
+- Si el audífono se moja: sécalo con un paño suave y déjalo en el estuche abierto
+  durante 30 minutos antes de volver a usarlo.
+- Para uso deportivo intenso, considera una bolsa desecante adicional.
+
+6.4 Almacenamiento correcto
+- Almacena el audífono en el estuche de carga cuando no lo uses.
+- Mantén el estuche alejado del calor directo, luz solar intensa y humedad.
+- Temperatura de almacenamiento: -20°C a +60°C.
+- No dejes el audífono en el coche durante el verano.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 7 — SOLUCIÓN DE PROBLEMAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Problema: El audífono no enciende
+→ Verifica que esté cargado (colócalo en el estuche 30 min).
+→ Si sigue sin encender, contacta al equipo de soporte.
+
+Problema: El sonido se escucha tapado o silencioso
+→ Limpia el filtro de cera (ver sección 6.2).
+→ Cambia el domo si está obstruido.
+
+Problema: El audífono pita constantemente
+→ 3 pitidos = batería baja → cargar.
+→ Pitido repetitivo = error de hardware → contactar soporte.
+
+Problema: Feedback (silbido agudo)
+→ Ajusta la posición del domo en el canal auditivo.
+→ Si persiste, el domo puede ser demasiado pequeño → consulta a la Dra.
+
+Problema: No conecta al Bluetooth
+→ Ver sección 5.4.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECCIÓN 8 — GARANTÍA Y SERVICIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Garantía: 2 años contra defectos de fabricación.
+- La garantía NO cubre daños por mal uso, caídas, agua (más allá de IP68)
+  o modificaciones no autorizadas.
+- Para servicio técnico o garantía, contacta a tu clínica audiológica.
