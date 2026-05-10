@@ -1,0 +1,228 @@
+{
+  "name": "Asistente Clínico — Recordatorios Automáticos",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "appointment-reminder",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "node-reminder-webhook",
+      "name": "Webhook appointment.created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 340],
+      "webhookId": "appointment-reminder",
+      "notes": "Registrar en Kaja:\ncurl -X POST https://{KAJA_TENANT_SLUG}.kaja.uno/api/v1/webhooks/ \\\n  -H 'Authorization: Bearer {KAJA_API_TOKEN}' \\\n  -d '{\"event\": \"appointment.created\", \"url\": \"{N8N_WEBHOOK_URL}/webhook/appointment-reminder\"}'"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extrae y valida datos del evento appointment.created de Kaja\nconst body = $input.first().json.body || $input.first().json;\n\n// Estructura esperada del payload de Kaja appointment.created\nconst appointment = body.appointment || body;\n\nconst customerPhone = appointment.customer?.phone\n  || appointment.client?.phone\n  || body.customer_phone\n  || '';\n\nconst customerName = appointment.customer?.first_name\n  || appointment.client?.name\n  || body.customer_name\n  || 'Paciente';\n\nconst startTime = appointment.start_time\n  || appointment.start\n  || body.start_time\n  || '';\n\nconst staffName = appointment.staff?.first_name\n  ? `${appointment.staff.first_name} ${appointment.staff.last_name || ''}`.trim()\n  : (appointment.staff?.name || 'tu especialista');\n\nconst appointmentId = appointment.id || body.id || `appt_${Date.now()}`;\n\nif (!customerPhone || !startTime) {\n  throw new Error(`Datos de cita incompletos: phone=${customerPhone}, start=${startTime}`);\n}\n\n// Parsear la fecha de la cita\nconst appointmentDate = new Date(startTime);\nif (isNaN(appointmentDate.getTime())) {\n  throw new Error(`Fecha inválida: ${startTime}`);\n}\n\n// Calcular timestamp para recordatorio (24h antes de la cita)\nconst reminderAt = new Date(appointmentDate.getTime() - 24 * 60 * 60 * 1000);\nconst now = new Date();\n\n// Si el recordatorio ya pasó (cita en menos de 24h), enviar en 30 segundos\nconst waitUntil = reminderAt > now ? reminderAt : new Date(now.getTime() + 30000);\nconst waitSeconds = Math.max(0, Math.floor((waitUntil.getTime() - now.getTime()) / 1000));\n\n// Formatear fecha y hora para el mensaje (zona horaria Ciudad de México)\nconst dateOptions = { timeZone: 'America/Mexico_City', weekday: 'long', day: 'numeric', month: 'long' };\nconst timeOptions = { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hour12: true };\nconst formattedDate = appointmentDate.toLocaleDateString('es-MX', dateOptions);\nconst formattedTime = appointmentDate.toLocaleTimeString('es-MX', timeOptions);\n\nreturn [{\n  json: {\n    appointmentId,\n    customerPhone,\n    customerName,\n    staffName,\n    startTime,\n    formattedDate,\n    formattedTime,\n    reminderAt: waitUntil.toISOString(),\n    waitSeconds,\n    businessName: $env['KAJA_BUSINESS_NAME'] || 'tu clínica de audiología'\n  }\n}];"
+      },
+      "id": "node-extract-appointment",
+      "name": "Extraer datos de la cita",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 340]
+    },
+    {
+      "parameters": {
+        "unit": "seconds",
+        "value": "={{ $json.waitSeconds }}"
+      },
+      "id": "node-wait",
+      "name": "Esperar hasta 24h antes de la cita",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [700, 340],
+      "notes": "Espera el tiempo calculado (hasta 24h antes de la cita).\nSi la cita es en menos de 24h, espera solo 30 segundos."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $env['KAJA_TENANT_SLUG'] }}.kaja.uno/api/v1/messages/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env['KAJA_API_TOKEN'] }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "to_phone", "value": "={{ $json.customerPhone }}" },
+            {
+              "name": "message",
+              "value": "=Hola {{ $json.customerName }} 👋 Te recordamos tu cita *mañana {{ $json.formattedDate }}* a las *{{ $json.formattedTime }}* con {{ $json.staffName }} en {{ $json.businessName }}.\n\n¿Confirmas tu asistencia?\nResponde *SÍ* para confirmar ✅\nResponde *NO* para reagendar 📅"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-send-reminder",
+      "name": "Enviar recordatorio WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 340],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kaja-bearer-token",
+          "name": "Kaja API — Bearer Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 300,
+        "unit": "seconds"
+      },
+      "id": "node-wait-response",
+      "name": "Esperar respuesta del paciente (5 min)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1100, 340],
+      "notes": "En producción, aquí se conectaría un webhook de respuesta del paciente.\nPor ahora espera 5 minutos y continúa."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "check-no-response",
+              "leftValue": "={{ $json.patientResponse || '' }}",
+              "rightValue": "NO",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-no",
+      "name": "¿Respondió NO?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1300, 340]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $env['KAJA_TENANT_SLUG'] }}.kaja.uno/api/v1/messages/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $env['KAJA_API_TOKEN'] }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "to_phone", "value": "={{ $('Extraer datos de la cita').item.json.customerPhone }}" },
+            {
+              "name": "message",
+              "value": "=Entendido, {{ $('Extraer datos de la cita').item.json.customerName }} 😊 Te ayudo a reagendar tu cita. ¿Qué fecha y horario te quedaría mejor?\n\nTe recomiendo responder con tu disponibilidad y uno de nuestros asistentes te confirmará un nuevo horario a la brevedad."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-offer-reschedule",
+      "name": "Ofrecer reagendar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1500, 240],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "kaja-bearer-token",
+          "name": "Kaja API — Bearer Token"
+        }
+      },
+      "notes": "Cuando el paciente responde NO, se dispara el agente principal\npara que gestione el reagendamiento con el MCP de Kaja."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env['N8N_WEBHOOK_URL'] }}/webhook/booking-agent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "body",
+              "value": "={{ JSON.stringify({ event: 'whatsapp.client_message', tenant_id: $env['KAJA_TENANT_SLUG'], message: { from: $('Extraer datos de la cita').item.json.customerPhone, text: { body: 'Quiero reagendar mi cita' }, type: 'text' } }) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-trigger-agent",
+      "name": "Disparar agente para reagendar",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1700, 240]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"status\": \"ok\", \"reminder\": \"scheduled\" }",
+        "options": {}
+      },
+      "id": "node-reminder-respond",
+      "name": "Responder 200 OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [700, 520]
+    }
+  ],
+  "connections": {
+    "Webhook appointment.created": {
+      "main": [[{ "node": "Extraer datos de la cita", "type": "main", "index": 0 }]]
+    },
+    "Extraer datos de la cita": {
+      "main": [
+        [
+          { "node": "Esperar hasta 24h antes de la cita", "type": "main", "index": 0 },
+          { "node": "Responder 200 OK", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Esperar hasta 24h antes de la cita": {
+      "main": [[{ "node": "Enviar recordatorio WhatsApp", "type": "main", "index": 0 }]]
+    },
+    "Enviar recordatorio WhatsApp": {
+      "main": [[{ "node": "Esperar respuesta del paciente (5 min)", "type": "main", "index": 0 }]]
+    },
+    "Esperar respuesta del paciente (5 min)": {
+      "main": [[{ "node": "¿Respondió NO?", "type": "main", "index": 0 }]]
+    },
+    "¿Respondió NO?": {
+      "main": [
+        [{ "node": "Ofrecer reagendar", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Ofrecer reagendar": {
+      "main": [[{ "node": "Disparar agente para reagendar", "type": "main", "index": 0 }]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": ["asistente-clinico", "pilar3", "recordatorios"],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-10T00:00:00.000Z",
+  "versionId": "1.0.0"
+}
